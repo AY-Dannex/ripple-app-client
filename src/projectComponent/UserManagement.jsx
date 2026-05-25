@@ -74,18 +74,13 @@ function UserManagement (){
 
             if (response.ok){
                 setUser(data.user)
-                console.log(data.user)
-                // setEmail("")
-                // toast.success(data.message)
             }else{
                 toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)
-            // console.log(`Error: ${error.message}`)
         } finally{
             setLoading(false)
-            // console.log(user)
         }
     }
 
@@ -115,7 +110,7 @@ function UserManagement (){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         } finally{
             handleSearch(email)
             setLoading2(false)
@@ -149,7 +144,7 @@ function UserManagement (){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         } finally{
             setLoading2(false)
             handleGetActivityLogs()
@@ -175,7 +170,7 @@ function UserManagement (){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         } finally{
             handleGetActivityLogs()
         }
@@ -202,12 +197,10 @@ function UserManagement (){
             if(response.ok){
                 if (data.logs.length > 0){
                     setLogs(data.logs)
-                    // console.log(data.logs)
-                    
                 }
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         }
     }
 
@@ -227,7 +220,7 @@ function UserManagement (){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         } 
     }
 
@@ -248,7 +241,7 @@ function UserManagement (){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         }finally{
             setLoading2(false)
         }
@@ -293,9 +286,6 @@ function UserManagement (){
                                     <MoreVertical size={25} />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-                                    {/* <DropdownMenuSeparator /> */}
-
                                      <DropdownMenuItem onSelect={(e) => {e.preventDefault()}}>
                                         <Drawer>
                                             <DrawerTrigger className="cursor-pointer" onClick={() => getOtherUserProfile(singleUser._id)}>View Profile</DrawerTrigger>
@@ -470,11 +460,6 @@ function UserManagement (){
                                             </p>
                                             <p className="text-sm text-gray-500">Action: {log.action}</p>
                                             <p className="text-sm text-gray-500">Details: {log.details}</p>
-
-                                            {/* <div className="flex gap-2 items-center">
-                                                <p className="text-xs text-gray-400">Performed by: {log.performedBy.lastName} {log.performedBy.firstName}</p>
-                                                <small className={`rounded px-1 font-medium ${roleStyles[log.performedBy.role]}`}>{log.performedBy.role}</small>
-                                            </div> */}
                                             <p className="text-xs text-gray-400">Time: {new Date(log.createdAt).toLocaleString()}</p>
                                         </div>
                                         <Button onClick={() => handleDeleteEachActivityLog(log._id)} className="cursor-pointer px-4"> <DeleteIcon /> </Button>

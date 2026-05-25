@@ -1,5 +1,4 @@
 import { useUser } from "../context/UserContext";
-import { useState, useEffect } from "react";
 import pic from "../assets/pic.jpg"
 import OtherUserProfileSkeleton from "./OtherUserProfileSkeleton";
 
@@ -12,9 +11,6 @@ function OtherUserProfile(){
         user: "bg-green-100 text-green-500"
     }
 
-    useEffect(() => {
-        console.log(profile)
-    }, [profile])
     return(
         <div>
             {
@@ -22,7 +18,6 @@ function OtherUserProfile(){
                     <OtherUserProfileSkeleton />
                 ) : (
                     <div className="px-5 py-4">
-                        {/* <h1 className="text-[20px] font-medium mb-3">My Profile</h1> */}
                         <div className="w-full flex gap-5 items-center  py-5 px-5 rounded-xl border shadow-md">
                             <div className="pic w-20 h-20 rounded-[300px] relative border cursor-pointer overflow-hidden">
                                 <img src={profile?.profilePic || pic} alt="profile-pic" className="z-5 w-full h-full object-cover cursor-pointer " />

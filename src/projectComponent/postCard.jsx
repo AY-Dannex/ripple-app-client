@@ -14,7 +14,6 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { toast } from "sonner"
 import OtherUserProfile from "./OtherUserProfile.jsx"
 import { useUser } from "../context/UserContext.jsx"
 import { usePosts } from "../context/PostContext.jsx"
@@ -50,18 +49,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         if (imageCount === 3 && index === 2) return "row-span-2"
         return ""
     }
-
-    // const getFiveImageRadius = (index) => {
-    //     const base = "12px"
-    //     const none = "0px"
-    //     const radii = {
-    //         0: `${base} ${base} ${none} ${base}`,
-    //         1: `${base} ${base} ${base} ${none}`,
-    //         2: `${base} ${none} ${base} ${base}`,
-    //         3: `${none} ${base} ${base} ${base}`,
-    //     }
-    //     return radii[index] ?? base
-    // }
 
     const renderImages = () => {
         if (!images || imageCount === 0) return null
@@ -198,7 +185,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                                             </Drawer>
                                         </DropdownMenuItem>
                                     )}
-                                    {/* <DropdownMenuItem className="cursor-pointer px-3 py-2">Settings</DropdownMenuItem> */}
                                     {canDelete() && (
                                         <div>
                                             <DropdownMenuSeparator />

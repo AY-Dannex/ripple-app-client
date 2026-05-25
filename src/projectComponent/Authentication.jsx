@@ -75,7 +75,7 @@ function Authentication(){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         }finally{
             setOtpLoading(false)
         }
@@ -111,10 +111,6 @@ function Authentication(){
     const handleShowPassword = () => {
         setShowPassword(!showPassword)
     }
-
-    // const togglePasswordVisibility = document.getElementsByClassName("")
-
-    
 
     const tabs = links.map((link) => (<Button onClick={() => setTab(link)} className={`px-10 py-[16px] cursor-pointer bg-transparent transition ${ tab === link ? "bg-purple-700" : "" }`}>{link}</Button>))
 
@@ -182,8 +178,6 @@ function Authentication(){
                                                 <span onClick={handleShowPassword} className="w-15 h-full flex justify-center items-center cursor-pointer">{showPassword? <EyeOff className="text-purple-500"/> : <Eye className="text-purple-500"/>}</span>
                                             </div>
 
-                                            {/* <Input type="checkbox" name="password" className="w-4"/>
-                                            <label for="password">Check Password</label> */}
                                             <Button disable={isLoading} onClick={handleRegister} className="py-6 cursor-pointer bg-purple-500 hover:bg-purple-600">{isLoading ? <Loader2 className="animate-spin" /> : "Create Account"} </Button>
                                         </CardContent>
                                     </Card>

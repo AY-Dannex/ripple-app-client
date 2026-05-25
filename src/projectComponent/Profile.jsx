@@ -74,7 +74,7 @@ function Profile (){
             if(response.ok){
                 toast.success(data.message)
                 setUser(data.profile)
-                console.log(data.profile)
+                // console.log(data.profile)
                 setReadOnly(true)
             }else{
                 toast.error(data.message)
@@ -137,7 +137,7 @@ function Profile (){
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(`Error: ${error.message}`)
+            // console.log(`Error: ${error.message}`)
         } finally{
             setPicLoading(false)
         }

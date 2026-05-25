@@ -8,21 +8,15 @@ export const PostProvider = ({ children }) => {
     const [userPosts, setUserPosts] = useState([])
     const [loadingPost, setLoadingPost] = useState(false)
     const [postsLoaded, setPostsLoaded] = useState(false)
-    // const fetchingRef = useRef(false)
     const baseURL = import.meta.env.VITE_BASE_URL
-    // const [userPostsLoaded, setUserPostsLoaded] = useState(false)
 
     const fetchPosts = async () => {
         if (postsLoaded) return
-        // fetchingRef.current = true
         setLoadingPost(true)
         try {
             const response = await fetch(`${baseURL}/post`, {
                 method: "GET",
                 credentials: "include",
-                // headers: {
-                //     "Cache-Control": "no-cache"
-                // }
             })
             const data = await response.json()
          
@@ -33,7 +27,6 @@ export const PostProvider = ({ children }) => {
                 setPosts([])
             }
         } catch (error) {
-            console.log(error.message)
             setPosts([])
         } finally {
             setLoadingPost(false)
@@ -41,26 +34,19 @@ export const PostProvider = ({ children }) => {
     }
 
     const fetchUserPosts = async () => {
-        // if (userPostsLoaded) return
         setLoadingPost(true)
         try {
             const response = await fetch(`${baseURL}/post/user`, {
                 method: "GET",
                 credentials: "include",
-                // headers: {
-                //     "Cache-Control": "no-cache"
-                // }
             })
             const data = await response.json()
             if(response.ok){
                 setUserPosts(data.userPost)
-                // console.log(data.userPost)
-                // setUserPostsLoaded(true)
             }else{
                 setUserPosts([])
             }
         } catch (error) {
-            console.log(error.message)
             setUserPosts([])
         } finally {
             setLoadingPost(false)
@@ -82,11 +68,9 @@ export const PostProvider = ({ children }) => {
                 toast.success(data.message)
             }else{
                 toast.error(data.message)
-                console.log(data.message)
             }
         } catch (error) {
             toast.error(error.message)
-            console.log(error.message)
         }
     }
 

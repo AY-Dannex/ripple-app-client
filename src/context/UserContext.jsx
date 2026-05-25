@@ -20,22 +20,16 @@ export const UserProvider = ({ children }) => {
                     "Cache-Control": "no-cache"
                 }
             })
-            // console.log("Status: ", response.status)
-            // console.log("fetchUser status:", response.status)
+          
             const data = await response.json()
-            // console.log("fetchUser data:", data)
-            // console.log("Data: ", data.profile)
 
             if(response.ok){
-                // setUser(data.profile)
                 setUser(data.profile)
-                // console.log(data.profile)
             }else{
                 setUser(null)
             }
         } catch (error) {
             setUser(null)
-            console.log(error.message)
         }finally{
             setLoading(false)
         }
@@ -54,10 +48,9 @@ export const UserProvider = ({ children }) => {
 
             if(response.ok){
                 setProfile(data.user)
-                console.log(data.user)
             }
         } catch (error) {
-            console.log(error.message)
+            // console.log(error.message)
         } finally{
             setLoadingProfile(false)
         }
@@ -72,7 +65,6 @@ export const UserProvider = ({ children }) => {
             })
 
             const data = await response.json()
-            // console.log("All users:", data.users)
 
             if (response.ok) {
                 setContacts(data.users)
@@ -87,43 +79,7 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         getAllUsers() 
         getUserProfile()
-        // console.log(user)
     }, [])
-
-    useEffect(() => {
-    })
-
-    // useEffect(() => {
-    //     if (!user) return
-
-    //     const interval = setInterval(async () => {
-    //         try {
-    //             const response = await fetch("", {
-    //                 method: "GET",
-    //                 credentials: "include",
-    //                 headers: {
-    //                     "Cache-Control": "no-cache"
-    //                 }
-    //             })
-
-    //             const data = await response.json()
-
-    //             if(response.ok){
-    //                 if (data.role !== user.role){
-    //                     setUser(data)
-    //                     window.location.href = "/home"
-    //                 }
-    //             }else{
-    //                 setUser(null)
-    //                 window.location.href = "/login"
-    //             }
-    //         } catch (error) {
-    //             console.log(error.message)
-    //         }
-    //     }, 15000)
-
-    //     return () => clearInterval(interval)
-    // }, [user])
 
     return (
         <UserContext.Provider value={{ user, setUser, loading, profile, loadingProfile, contacts, loadingContact, getOtherUserProfile, getAllUsers }}>

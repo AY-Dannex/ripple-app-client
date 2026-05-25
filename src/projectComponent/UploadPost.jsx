@@ -25,12 +25,10 @@ function UploadPost (){
     const [visibility, setVisibility] = useState("")
     const [imageFile, setImageFile] = useState(null)
     const [loading, setLoading] = useState(false)
-    // const fileInputRef = useRef(null)
     const { fetchPosts, setPostsLoaded, setPosts } = usePosts()
-    const [imageFiles, setImageFiles] = useState([]);   // array of File objects
-    const [previews, setPreviews] = useState([]);        // array of object URLs
+    const [imageFiles, setImageFiles] = useState([]);   
+    const [previews, setPreviews] = useState([]);     
     const [open, setOpen] = useState(false)
-    // const { user } = useUser();
     const baseURL = import.meta.env.VITE_BASE_URL
 
     useEffect(() => {
@@ -93,10 +91,6 @@ function UploadPost (){
             setPreviews([]);
             }
     }
-
-    // const handleClear = (e) => {
-    //     e.target.value = ""
-    // }
 
     useEffect(() => {
         fetchPosts();

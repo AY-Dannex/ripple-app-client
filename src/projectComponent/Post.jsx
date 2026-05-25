@@ -7,11 +7,7 @@ import { usePosts } from "../context/PostContext.jsx"
 import pic from "../assets/pic.jpg"
 
 function Post ({ pageType = "feed" }) {
-    // const [newPosts, setNewPosts] = useState([])
-    // const [loadingPost, setLoadingPost] = useState(false)
     const { fetchPosts, posts, loadingPost } = usePosts()
-
-    // const handleNewPost = ()
 
     useEffect(() => {
         fetchPosts()

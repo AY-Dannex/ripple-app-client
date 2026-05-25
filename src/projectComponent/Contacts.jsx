@@ -20,9 +20,6 @@ function Contact(){
     
     useEffect(() => {
         getAllUsers()
-        console.log("Logged in user id:", user.id, typeof user.id)
-        console.log("Contacts:", contacts?.map(c => ({ id: c._id, type: typeof c._id })))
-        // console.log(contacts)
      }, [])
      
     return(
