@@ -109,7 +109,7 @@ function Landing() {
                         </Link>
                         <Link to="/authentication" type="Sign Up">
                             <Button
-                                className="cursor-pointer px-5 rounded-full font-medium transition-all duration-200 hover:scale-105"
+                                className="cursor-pointer px-5 rounded-xl font-medium transition-all duration-200 hover:scale-105"
                                 style={{
                                     background: "linear-gradient(135deg, #4b0082, #1a3a6b)",
                                     border: "1px solid rgba(255,255,255,0.15)",
@@ -192,7 +192,7 @@ function Landing() {
                 >
                     <Link to="/authentication">
                         <Button
-                            className="cursor-pointer px-8 py-6 text-base rounded-full font-semibold transition-all duration-200 hover:scale-105 hover:shadow-2xl"
+                            className="cursor-pointer px-6 py-6 text-base rounded-xl font-semibold transition-all duration-200 hover:scale-105 hover:shadow-2xl"
                             style={{
                                 background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
                                 color: "white",
@@ -206,7 +206,7 @@ function Landing() {
                     <Link to="/authentication">
                         <Button
                             variant="outline"
-                            className="cursor-pointer px-8 py-6 text-base rounded-full font-semibold transition-all duration-200 hover:scale-105"
+                            className="cursor-pointer px-6 py-6 text-base rounded-xl font-semibold transition-all duration-200 hover:scale-105"
                             style={{
                                 backgroundColor: "rgba(255,255,255,0.05)",
                                 border: "1px solid rgba(255,255,255,0.15)",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useUser } from "../context/UserContext"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -33,7 +32,7 @@ function Profile (){
     const [loading, setLoading] = useState(false)
     const [picLoading, setPicLoading] = useState(false)
     const [profilePic, setProfilePic] = useState(null)
-    const {userPosts, loadingPost, fetchUserPosts} = usePosts()
+    const { userPosts, loadingPost, fetchUserPosts, hasMoreUserPosts, currentUserPage } = usePosts()
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -44,15 +43,17 @@ function Profile (){
     })
     const baseURL = import.meta.env.VITE_BASE_URL
 
+    // Infinite scroll
+    const sentinelRef = useRef(null)
+    const observerRef = useRef(null)
+
     const roleStyles = {
         admin: "bg-purple-100 text-purple-500",
         moderator: "bg-blue-100 text-blue-500",
         user: "bg-green-100 text-green-500"
     }
 
-    const handleEdit = () => {
-        setReadOnly(false)
-    }
+    const handleEdit = () => setReadOnly(false)
 
     const handleSave = async () => {
         try {
@@ -71,34 +72,32 @@ function Profile (){
             })
             const data = await response.json()
 
-            if(response.ok){
+            if (response.ok) {
                 toast.success(data.message)
                 setUser(data.profile)
-                // console.log(data.profile)
                 setReadOnly(true)
-            }else{
+            } else {
                 toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)
-        } finally{
+        } finally {
             setLoading(false)
         }
     }
 
-    const handleUploadProfilePic = async (e) =>{
+    const handleUploadProfilePic = async (e) => {
         try {
             setPicLoading(true)
             const file = e.target.files[0]
-
-            if(!file) return
+            if (!file) return
 
             setProfilePic(URL.createObjectURL(file))
 
             const formData = new FormData()
             formData.append("profilePic", file)
 
-            const response = await fetch (`${baseURL}/user/upload-profile-pic`, {
+            const response = await fetch(`${baseURL}/user/upload-profile-pic`, {
                 method: "PATCH",
                 credentials: "include",
                 body: formData
@@ -106,16 +105,15 @@ function Profile (){
 
             const data = await response.json()
 
-            if(response.ok){
+            if (response.ok) {
                 toast.success(data.message)
                 setUser(data.profile)
-                setPicLoading(false)
-            }else{
+            } else {
                 toast.error(data.message)
-                setPicLoading(false)
             }
         } catch (error) {
             toast.error(error.message)
+        } finally {
             setPicLoading(false)
         }
     }
@@ -127,38 +125,37 @@ function Profile (){
                 method: "DELETE",
                 credentials: "include"
             })
-
             const data = await response.json()
 
-            if(response.ok){
+            if (response.ok) {
                 toast.success(data.message)
                 setUser(data.profile)
-            }else{
+            } else {
                 toast.error(data.message)
             }
         } catch (error) {
-            // console.log(`Error: ${error.message}`)
-        } finally{
+            toast.error(error.message)
+        } finally {
             setPicLoading(false)
         }
     }
 
-    const allUserPosts = userPosts?.slice().reverse().map((post) => (
-        <PostCard
-            key={post._id}
-            id={post._id}
-            profilePic={user?.profilePic || pic}
-            username={post.user.username}
-            firstName={post.user.firstName}
-            lastName={post.user.lastName}
-            content={post.description}
-            images={post.image}
-            visibility={post.visibility}
-            dateUpdated={post.updatedAt}
-            role={post.user.role}
-            pageType="profile"
-        />
-    ))
+    // Infinite scroll — watch sentinel div at bottom of posts list
+    useEffect(() => {
+        if (observerRef.current) observerRef.current.disconnect()
+
+        observerRef.current = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMoreUserPosts && !loadingPost) {
+                fetchUserPosts(currentUserPage + 1)
+            }
+        }, { threshold: 0.1 })
+
+        if (sentinelRef.current) {
+            observerRef.current.observe(sentinelRef.current)
+        }
+
+        return () => observerRef.current?.disconnect()
+    }, [hasMoreUserPosts, loadingPost, currentUserPage])
 
     useEffect(() => {
         setFormData({
@@ -171,23 +168,20 @@ function Profile (){
             role: user?.role || "",
             created: user?.created || "",
         })
-
         setProfilePic(user?.profilePic || pic)
-
-        fetchUserPosts()
+        fetchUserPosts(1)
     }, [])
 
-    return(
+    return (
         <div className="w-full px-3 py-2">
             <h1 className="text-[20px] font-medium mb-3">My Profile</h1>
             <div className="w-full flex gap-5 items-center py-5 px-5 rounded-xl border shadow-md">
 
                 {/* PROFILE PIC SECTION */}
                 <div className="w-20 h-20 relative sm:w-20 sm:h-20 md:w-30 md:h-30">
-                    <div className="pic w-20 h-20 rounded-[300px] border overflow-hidden cursor-pointer relative sm:w-20 sm:h-20 md:w-30 md:h-30">
+                    <div className="pic w-20 h-20 rounded-[300px] border-2 border-purple-400 overflow-hidden cursor-pointer relative sm:w-20 sm:h-20 md:w-30 md:h-30">
                         {profilePic && <img src={user.profilePic || pic} alt="profile-pic" className="w-full h-full object-cover cursor-pointer" />}
 
-                        {/* Dropdown overlay */}
                         {!picLoading && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild className="outline-none">
@@ -220,7 +214,6 @@ function Profile (){
                             </DropdownMenu>
                         )}
 
-                        {/* Loading state */}
                         {picLoading && (
                             <div className="absolute inset-0 bg-black/50 rounded-[300px] flex items-center justify-center z-20">
                                 <Loader2 className="animate-spin text-white" />
@@ -228,17 +221,16 @@ function Profile (){
                         )}
                     </div>
 
-                    {/* Camera icon - OUTSIDE overflow hidden */}
-                    <div className="absolute bottom-0 right-0 bg-black rounded-full w-8 h-8 flex items-center justify-center cursor-pointer z-20">
+                    <div className="absolute bottom-1 right-1 bg-black rounded-full w-8 h-8 flex items-center justify-center cursor-pointer z-20">
                         <label htmlFor="picture" className="cursor-pointer flex items-center justify-center w-full h-full">
-                            <CameraIcon className="text-white" size={18}/>
+                            <CameraIcon className="text-white" size={18} />
                         </label>
                         <input
                             type="file"
                             id="picture"
                             disabled={picLoading}
                             accept="image/*"
-                            onChange={(e) => handleUploadProfilePic(e)}
+                            onChange={handleUploadProfilePic}
                             className="hidden"
                         />
                     </div>
@@ -254,22 +246,22 @@ function Profile (){
                 <div className="w-full flex gap-2 items-center justify-between">
                     <h1 className="text-[16px] sm:text-[20px] font-medium">Personal Information</h1>
                     <Button onClick={readOnly ? handleEdit : handleSave} className="cursor-pointer w-20 py-3 px-5">
-                        {loading ? <Loader2 className="animate-spin"/> : readOnly ? "Edit" : "Save"}
+                        {loading ? <Loader2 className="animate-spin" /> : readOnly ? "Edit" : "Save"}
                     </Button>
                 </div>
                 <br />
                 <div className="grid grid-cols-2 gap-2 mb-5 lg:grid-cols-3">
                     <div className="flex flex-col gap-1">
                         <small className="pl-3">First Name</small>
-                        <Input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]"/>
+                        <Input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]" />
                     </div>
                     <div className="flex flex-col gap-1">
                         <small className="pl-3">Last Name</small>
-                        <Input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]"/>
+                        <Input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]" />
                     </div>
                     <div className="flex flex-col gap-1">
                         <small className="pl-3">Username</small>
-                        <Input type="text" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]"/>
+                        <Input type="text" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]" />
                     </div>
                     <div className="flex flex-col justify-center gap-1">
                         <small className="pl-3">Role</small>
@@ -279,7 +271,7 @@ function Profile (){
                 <div className="flex flex-col gap-2 lg:flex-row">
                     <div className="flex flex-col justify-center gap-1">
                         <small className="pl-3">Email</small>
-                        <Input type="text" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]"/>
+                        <Input type="text" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} readOnly={readOnly} className="font-medium !border-none outline-none !ring-0 focus:!ring-0 focus:!border-none shadow-none text-[14px] lg:text-[16px]" />
                     </div>
                     <div className="flex flex-col justify-center gap-1">
                         <small className="pl-3 mb-2">Member Since</small>
@@ -301,10 +293,31 @@ function Profile (){
             <div className="mt-15">
                 <h1 className="text-[20px] font-medium text-center">My Posts ({userPosts.length})</h1>
                 <div className="flex flex-col gap-2 mt-10">
-                    {loadingPost ? (
-                        <PostSkeleton />
-                    ) : (
-                        allUserPosts
+                    {userPosts.map((post) => (
+                        <PostCard
+                            key={post._id}
+                            id={post._id}
+                            userID={post.user._id}
+                            profilePic={post.user.profilePic || pic}
+                            username={post.user.username}
+                            firstName={post.user.firstName}
+                            lastName={post.user.lastName}
+                            content={post.description}
+                            images={post.image}
+                            visibility={post.visibility}
+                            dateUpdated={post.updatedAt}
+                            role={post.user.role}
+                            pageType="profile"
+                        />
+                    ))}
+
+                    {/* Infinite scroll sentinel */}
+                    <div ref={sentinelRef} className="h-1" />
+
+                    {loadingPost && <PostSkeleton />}
+
+                    {!hasMoreUserPosts && userPosts.length > 0 && (
+                        <p className="text-center text-gray-400 text-sm">You've reached the end</p>
                     )}
                 </div>
             </div>

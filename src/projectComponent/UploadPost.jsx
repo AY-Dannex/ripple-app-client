@@ -166,17 +166,17 @@ function UploadPost (){
             </FieldGroup>
 
             <Select value={visibility} disabled={loading} onValueChange={setVisibility}>
-                  <SelectTrigger className="w-full max-w-35">
-                    <SelectValue placeholder="Select visibility" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Visibility</SelectLabel>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="private">Private</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <SelectTrigger className="w-full max-w-35">
+                  <SelectValue placeholder="Select visibility" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Visibility</SelectLabel>
+                    <SelectItem value="public">Public</SelectItem>
+                    <SelectItem value="private">Private</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+            </Select>
 
             <DialogFooter className="flex flex-row justify-end">
               <DialogClose>

@@ -1,11 +1,10 @@
 import { formatDistanceToNow } from "date-fns"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, MoreVertical } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -17,16 +16,45 @@ import {
 import OtherUserProfile from "./OtherUserProfile.jsx"
 import { useUser } from "../context/UserContext.jsx"
 import { usePosts } from "../context/PostContext.jsx"
+import {
+    Dialog, 
+    DialogTrigger,
+    DialogHeader,
+    DialogTitle,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogClose
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Field, FieldGroup } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
+import { Plus, Loader2 } from "lucide-react"
 
 function PostCard ({ profilePic, images, firstName, lastName, username, content, visibility, dateUpdated, id, pageType, userID }) {
     const timeAgo = formatDistanceToNow(new Date(dateUpdated), { addSuffix: true })
     const [selectedImage, setSelectedImage] = useState(null)
     const { user, getOtherUserProfile } = useUser()
-    const { deletePost } = usePosts()
+    const { deletePost, editPost } = usePosts()
+
+    // Edit state
+    // const [editDescription, setEditDescription] = useState(content)
+    // const [editVisibility, setEditVisibility] = useState(visibility)
+    // const [keepImages, setKeepImages] = useState(images || [])
+    // const [newImages, setNewImages] = useState([])
+    // const [newImagePreviews, setNewImagePreviews] = useState([])
+    // const [editLoading, setEditLoading] = useState(false)
+
+    // Cleanup object URLs on unmount
+    // useEffect(() => {
+    //     return () => newImagePreviews.forEach(url => URL.revokeObjectURL(url))
+    // }, [newImagePreviews])
 
     const canDelete = () => {
         if (pageType === "admin") return true
-        if (pageType === "profile") return user.username === username
+        if (pageType === "profile") return user._id === userID
         if (pageType === "feed") return false   
     }
 
@@ -35,6 +63,58 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         if (pageType === "feed") return true
         if (pageType === "admin") return true
     }
+
+    // const canEdit = () => {
+    //     if (pageType === "admin") return false
+    //     if (pageType === "profile") return user._id === userID
+    //     if (pageType === "feed") return false   
+    // }
+
+    // // Remove an existing image (already on Cloudinary)
+    // const removeKeepImage = (index) => {
+    //     setKeepImages(prev => prev.filter((_, i) => i !== index))
+    // }
+
+    // // Remove a newly selected image (not yet uploaded)
+    // const removeNewImage = (index) => {
+    //     URL.revokeObjectURL(newImagePreviews[index])
+    //     setNewImages(prev => prev.filter((_, i) => i !== index))
+    //     setNewImagePreviews(prev => prev.filter((_, i) => i !== index))
+    // }
+
+    // // Handle new file selection — mirrors UploadPost's handleFileChange
+    // const handleImageSelect = (e) => {
+    //     const selected = Array.from(e.target.files)
+    //     const merged = [...newImages, ...selected]
+
+    //     if (keepImages.length + merged.length > 4) {
+    //         toast.error("You can upload at most 4 images.")
+    //         return
+    //     }
+
+    //     setNewImages(merged)
+    //     setNewImagePreviews(merged.map(file => URL.createObjectURL(file)))
+    //     e.target.value = "" // reset so same file can be re-selected
+    // }
+
+    // // Submit the edit — mirrors UploadPost's handlePost
+    // const handleEdit = async () => {
+    //     setEditLoading(true)
+    //     try {
+    //         const formData = new FormData()
+    //         formData.append("description", editDescription)
+    //         formData.append("visibility", editVisibility)
+    //         formData.append("keepImages", JSON.stringify(keepImages))
+    //         newImages.forEach(file => formData.append("images", file))
+
+    //         await editPost(id, formData)
+    //     } catch (error) {
+    //         toast.error("An error occurred while editing the post.")
+    //         console.error("Edit post error:", error)
+    //     } finally {
+    //         setEditLoading(false)
+    //     }
+    // }
 
     const imageCount = images?.length ?? 0
 
@@ -54,93 +134,45 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         if (!images || imageCount === 0) return null
 
         if (imageCount === 4) {
-    return (
-        <div className="grid grid-cols-2 grid-rows-2 gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80">
-            {/* Top-left */}
-            <div className="overflow-hidden col-start-1 row-start-1">
-                <img
-                    src={images[0]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[0])}
-                />
-            </div>
-            {/* Bottom-left */}
-            <div className="overflow-hidden col-start-1 row-start-2">
-                <img
-                    src={images[1]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[1])}
-                />
-            </div>
-            {/* Right — spans both rows */}
-            <div className="overflow-hidden col-start-1 col-start-2">
-                <img
-                    src={images[2]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[2])}
-                />
-            </div>
-            <div className="overflow-hidden col-start-1 col-start-2">
-                <img
-                    src={images[3]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[3])}
-                />
-            </div>
-        </div>
-    )
-}
+            return (
+                <div className="grid grid-cols-2 grid-rows-2 gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80">
+                    <div className="overflow-hidden col-start-1 row-start-1">
+                        <img src={images[0]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[0])} />
+                    </div>
+                    <div className="overflow-hidden col-start-1 row-start-2">
+                        <img src={images[1]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[1])} />
+                    </div>
+                    <div className="overflow-hidden col-start-2 row-start-1">
+                        <img src={images[2]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[2])} />
+                    </div>
+                    <div className="overflow-hidden col-start-2 row-start-2">
+                        <img src={images[3]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[3])} />
+                    </div>
+                </div>
+            )
+        }
+
         if (imageCount === 3) {
-    return (
-        <div className="grid grid-cols-2 grid-rows-2 gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80">
-            {/* Top-left */}
-            <div className="overflow-hidden col-start-1 row-start-1">
-                <img
-                    src={images[0]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[0])}
-                />
-            </div>
-            {/* Bottom-left */}
-            <div className="overflow-hidden col-start-1 row-start-2">
-                <img
-                    src={images[1]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[1])}
-                />
-            </div>
-            {/* Right — spans both rows */}
-            <div className="overflow-hidden col-start-2 row-start-1 row-span-2">
-                <img
-                    src={images[2]}
-                    alt="post"
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(images[2])}
-                />
-            </div>
-        </div>
-    )
-}
+            return (
+                <div className="grid grid-cols-2 grid-rows-2 gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80">
+                    <div className="overflow-hidden col-start-1 row-start-1">
+                        <img src={images[0]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[0])} />
+                    </div>
+                    <div className="overflow-hidden col-start-1 row-start-2">
+                        <img src={images[1]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[1])} />
+                    </div>
+                    <div className="overflow-hidden col-start-2 row-start-1 row-span-2">
+                        <img src={images[2]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[2])} />
+                    </div>
+                </div>
+            )
+        }
 
         return (
             <div className={`grid ${gridClass} gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80`}>
                 {images.map((pic, index) => (
-                    <div
-                        key={index}
-                        className={`overflow-hidden ${getImageClass(index)}`}
-                    >
-                        <img
-                            src={pic}
-                            alt="post"
-                            className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setSelectedImage(pic)}
-                        />
+                    <div key={index} className={`overflow-hidden ${getImageClass(index)}`}>
+                        <img src={pic} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(pic)} />
                     </div>
                 ))}
             </div>
@@ -185,12 +217,13 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                                             </Drawer>
                                         </DropdownMenuItem>
                                     )}
+                                   
                                     {canDelete() && (
                                         <div>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem
                                                 onClick={() => deletePost(id)}
-                                                className="text-red-500 cursor-pointer"
+                                                className="text-red-500 cursor-pointer px-3 py-2"
                                             >
                                                 Delete
                                             </DropdownMenuItem>
@@ -207,7 +240,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                 <div className="mt-2 mb-2 pr-5">
                     <p className="text-[14px] sm:text-[16px]">{content}</p>
                 </div>
-
                 <div className="pr-5 max-w-230">
                     {renderImages()}
                 </div>
@@ -226,7 +258,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                     >
                         <X size={32} />
                     </button>
-
                     <img
                         src={selectedImage}
                         alt="full screen"

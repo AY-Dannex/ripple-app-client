@@ -88,7 +88,7 @@ function Navbar({ setShowAdminPanel, setActivePage }){
             {/* Avatar with dropdown for logout/profile on mobile */}
             <DropdownMenu>
                 <DropdownMenuTrigger className="outline-none flex flex-col items-center gap-0.5 p-2">
-                    <div className="w-7 h-7 rounded-full overflow-hidden border-2 border-purple-200">
+                    <div className="w-7 h-7 rounded-full overflow-hidden border-2 border-purple-500">
                         <img 
                             className="w-full h-full object-cover" 
                             src={user?.profilePic || pic} 
@@ -165,7 +165,7 @@ function Navbar({ setShowAdminPanel, setActivePage }){
             {/* User section at bottom */}
             <div className="flex items-center justify-between px-[2px] py-3 rounded-xl hover:bg-gray-100 transition-all duration-200">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-200 flex-shrink-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-400 flex-shrink-0">
                         <img 
                             className="w-full h-full object-cover" 
                             src={user?.profilePic || pic} 
