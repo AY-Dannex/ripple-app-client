@@ -26,7 +26,7 @@ function PostSkeleton (){
                     <div className="mt-2 pr-5 h-10 flex flex-col gap-2">
                         <Skeleton className="w-full h-full"/>
                     </div>
-                    <div className="rounded-3xl h-100 mt-5 mr-5">
+                    <div className="rounded-3xl h-60 mt-5 mr-5 md:h-100">
                         <Skeleton className="w-full h-full"/>
                     </div>
                 </div>
