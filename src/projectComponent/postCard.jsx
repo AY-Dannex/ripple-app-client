@@ -238,7 +238,7 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
 
             <div className="ml-12 mb-5 sm:ml-17">
                 <div className="mt-2 mb-2 pr-5">
-                    <p className="text-[14px] sm:text-[16px]">{content}</p>
+                    <p className="text-[14px] whitespace-pre-wrap sm:text-[16px]">{content}</p>
                 </div>
                 <div className="pr-5 max-w-230">
                     {renderImages()}
