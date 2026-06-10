@@ -54,7 +54,7 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
 
     const canDelete = () => {
         if (pageType === "admin") return true
-        if (pageType === "profile") return user._id === userID
+        if (pageType === "profile") return user.id === userID
         if (pageType === "feed") return false   
     }
 
@@ -220,7 +220,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                                    
                                     {canDelete() && (
                                         <div>
-                                            <DropdownMenuSeparator />
                                             <DropdownMenuItem
                                                 onClick={() => deletePost(id)}
                                                 className="text-red-500 cursor-pointer px-3 py-2"
