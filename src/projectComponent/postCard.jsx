@@ -8,7 +8,7 @@ import {
 import { Drawer, DrawerContent, DrawerTrigger, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import OtherUserProfile from "./OtherUserProfile.jsx"
-import CommentSection from "./1111.jsx" 
+import CommentSection from "./CommentSection.jsx" 
 import { useUser } from "../context/UserContext.jsx"
 import { usePosts } from "../context/PostContext.jsx"
 import { toast } from "sonner"
