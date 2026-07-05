@@ -49,6 +49,8 @@ function Post ({ pageType = "feed" }) {
                             visibility={post.visibility}
                             dateUpdated={post.updatedAt}
                             pageType={pageType}
+                            likes={post.likes}
+                            likedByMe={post.likedByMe}
                         />
                     ))}
 

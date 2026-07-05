@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from "date-fns"
 import { useState, useEffect } from "react"
-import { X, MoreVertical } from "lucide-react"
+import { X, MoreVertical, Heart } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,13 +31,13 @@ import { toast } from "sonner"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Label } from "@/components/ui/label"
-import { Plus, Loader2 } from "lucide-react"
+import { Plus, Loader2,  } from "lucide-react"
 
-function PostCard ({ profilePic, images, firstName, lastName, username, content, visibility, dateUpdated, id, pageType, userID }) {
+function PostCard ({ profilePic, images, firstName, lastName, username, content, visibility, dateUpdated, id, pageType, userID, likes, likedByMe }) {
     const timeAgo = formatDistanceToNow(new Date(dateUpdated), { addSuffix: true })
     const [selectedImage, setSelectedImage] = useState(null)
     const { user, getOtherUserProfile } = useUser()
-    const { deletePost, editPost } = usePosts()
+    const { deletePost, editPost, likeCount, toggleLike } = usePosts()
 
     // Edit state
     // const [editDescription, setEditDescription] = useState(content)
@@ -241,6 +241,18 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                 </div>
                 <div className="pr-5 max-w-230">
                     {renderImages()}
+                </div>
+                <div className="mt-3 mr-5 flex justify-around items-center gap-2">
+                    <div className="flex items-center gap-1">
+                        <Heart
+                            size={25}
+                            onClick={() => toggleLike(id)}
+                            className={`cursor-pointer transition-transform active:scale-125 ${
+                                likedByMe ? "fill-red-500 text-red-500" : "text-gray-400"
+                            }`}
+                        />
+                        <span className="text-gray-400 text-[14px] sm:text-[16px]">{likes?.length}</span>
+                    </div>
                 </div>
             </div>
 

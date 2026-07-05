@@ -308,6 +308,8 @@ function Profile (){
                             dateUpdated={post.updatedAt}
                             role={post.user.role}
                             pageType="profile"
+                            likes={post.likes}
+                            likedByMe={post.likedByMe}
                         />
                     ))}
 

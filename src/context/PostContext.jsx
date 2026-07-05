@@ -11,6 +11,7 @@ export const PostProvider = ({ children }) => {
     const [hasMoreUserPosts, setHasMoreUserPosts] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
     const [currentUserPage, setCurrentUserPage] = useState(1)
+    const [likeCount, setLikeCount] = useState("")
     const baseURL = import.meta.env.VITE_BASE_URL
 
     const fetchPosts = async (page = 1) => {
@@ -25,6 +26,7 @@ export const PostProvider = ({ children }) => {
             if (response.ok) {
                 if (page === 1) {
                     setPosts(data.allPost)           // fresh load or refresh
+                    // console.log("Fetched posts:", data.allPost) // Log the fetched posts
                 } else {
                     setPosts(prev => [...prev, ...data.allPost])  // append next page
                 }
@@ -108,6 +110,49 @@ export const PostProvider = ({ children }) => {
         }
     }
 
+const toggleLike = async (ID) => {
+    // Optimistic update — flip immediately
+    const update = (prev) => prev.map(post => {
+        if (post._id !== ID) return post
+        const alreadyLiked = post.likedByMe
+        return {
+            ...post,
+            likedByMe: !alreadyLiked,
+            likes: { length: alreadyLiked ? post.likes.length - 1 : post.likes.length + 1 }
+        }
+    })
+
+    setPosts(update)
+    setUserPosts(update)
+
+    try {
+        const response = await fetch(`${baseURL}/post/like/${ID}`, {
+            method: "PATCH",
+            credentials: "include"
+        })
+
+        const data = await response.json()
+
+        // Only touch state again if something went wrong — roll back
+        if (!response.ok) {
+            const rollback = (prev) => prev.map(post => {
+                if (post._id !== ID) return post
+                const alreadyLiked = post.likedByMe
+                return {
+                    ...post,
+                    likedByMe: !alreadyLiked,
+                    likes: { length: alreadyLiked ? post.likes.length - 1 : post.likes.length + 1 }
+                }
+            })
+            setPosts(rollback)
+            setUserPosts(rollback)
+            toast.error(data.message)
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+}
     return (
         <PostContext.Provider value={{
             posts, setPosts,
@@ -120,7 +165,9 @@ export const PostProvider = ({ children }) => {
             fetchPosts,
             fetchUserPosts,
             editPost,
-            deletePost
+            deletePost,
+            toggleLike,
+            likeCount
         }}>
             {children}
         </PostContext.Provider>
