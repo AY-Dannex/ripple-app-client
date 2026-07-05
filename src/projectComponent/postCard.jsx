@@ -1,61 +1,43 @@
 import { formatDistanceToNow } from "date-fns"
-import { useState, useEffect } from "react"
-import { X, MoreVertical, Heart } from "lucide-react"
+import { useState } from "react"
+import { X, MoreVertical, Heart, MessageCircle } from "lucide-react"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerTrigger, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import OtherUserProfile from "./OtherUserProfile.jsx"
+import CommentSection from "./CommentSection.jsx"
 import { useUser } from "../context/UserContext.jsx"
 import { usePosts } from "../context/PostContext.jsx"
-import {
-    Dialog, 
-    DialogTrigger,
-    DialogHeader,
-    DialogTitle,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogClose
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Field, FieldGroup } from "@/components/ui/field"
-import { Label } from "@/components/ui/label"
-import { Plus, Loader2,  } from "lucide-react"
 
-function PostCard ({ profilePic, images, firstName, lastName, username, content, visibility, dateUpdated, id, pageType, userID, likes, likedByMe }) {
+// Hook to detect screen size
+const useIsDesktop = () => {
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768)
+
+    useState(() => {
+        const handler = () => setIsDesktop(window.innerWidth >= 768)
+        window.addEventListener("resize", handler)
+        return () => window.removeEventListener("resize", handler)
+    })
+
+    return isDesktop
+}
+
+function PostCard({ profilePic, images, firstName, lastName, username, content, visibility, dateUpdated, id, pageType, userID, likes, likedByMe, commentCount }) {
     const timeAgo = formatDistanceToNow(new Date(dateUpdated), { addSuffix: true })
     const [selectedImage, setSelectedImage] = useState(null)
+    const [commentOpen, setCommentOpen] = useState(false)
     const { user, getOtherUserProfile } = useUser()
-    const { deletePost, editPost, likeCount, toggleLike } = usePosts()
-
-    // Edit state
-    // const [editDescription, setEditDescription] = useState(content)
-    // const [editVisibility, setEditVisibility] = useState(visibility)
-    // const [keepImages, setKeepImages] = useState(images || [])
-    // const [newImages, setNewImages] = useState([])
-    // const [newImagePreviews, setNewImagePreviews] = useState([])
-    // const [editLoading, setEditLoading] = useState(false)
-
-    // Cleanup object URLs on unmount
-    // useEffect(() => {
-    //     return () => newImagePreviews.forEach(url => URL.revokeObjectURL(url))
-    // }, [newImagePreviews])
+    const { deletePost, toggleLike } = usePosts()
+    const isDesktop = useIsDesktop()
 
     const canDelete = () => {
         if (pageType === "admin") return true
         if (pageType === "profile") return user.id === userID
-        if (pageType === "feed") return false   
+        if (pageType === "feed") return false
     }
 
     const canView = () => {
@@ -63,58 +45,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         if (pageType === "feed") return true
         if (pageType === "admin") return true
     }
-
-    // const canEdit = () => {
-    //     if (pageType === "admin") return false
-    //     if (pageType === "profile") return user._id === userID
-    //     if (pageType === "feed") return false   
-    // }
-
-    // // Remove an existing image (already on Cloudinary)
-    // const removeKeepImage = (index) => {
-    //     setKeepImages(prev => prev.filter((_, i) => i !== index))
-    // }
-
-    // // Remove a newly selected image (not yet uploaded)
-    // const removeNewImage = (index) => {
-    //     URL.revokeObjectURL(newImagePreviews[index])
-    //     setNewImages(prev => prev.filter((_, i) => i !== index))
-    //     setNewImagePreviews(prev => prev.filter((_, i) => i !== index))
-    // }
-
-    // // Handle new file selection — mirrors UploadPost's handleFileChange
-    // const handleImageSelect = (e) => {
-    //     const selected = Array.from(e.target.files)
-    //     const merged = [...newImages, ...selected]
-
-    //     if (keepImages.length + merged.length > 4) {
-    //         toast.error("You can upload at most 4 images.")
-    //         return
-    //     }
-
-    //     setNewImages(merged)
-    //     setNewImagePreviews(merged.map(file => URL.createObjectURL(file)))
-    //     e.target.value = "" // reset so same file can be re-selected
-    // }
-
-    // // Submit the edit — mirrors UploadPost's handlePost
-    // const handleEdit = async () => {
-    //     setEditLoading(true)
-    //     try {
-    //         const formData = new FormData()
-    //         formData.append("description", editDescription)
-    //         formData.append("visibility", editVisibility)
-    //         formData.append("keepImages", JSON.stringify(keepImages))
-    //         newImages.forEach(file => formData.append("images", file))
-
-    //         await editPost(id, formData)
-    //     } catch (error) {
-    //         toast.error("An error occurred while editing the post.")
-    //         console.error("Edit post error:", error)
-    //     } finally {
-    //         setEditLoading(false)
-    //     }
-    // }
 
     const imageCount = images?.length ?? 0
 
@@ -136,18 +66,10 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         if (imageCount === 4) {
             return (
                 <div className="grid grid-cols-2 grid-rows-2 gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80">
-                    <div className="overflow-hidden col-start-1 row-start-1">
-                        <img src={images[0]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[0])} />
-                    </div>
-                    <div className="overflow-hidden col-start-1 row-start-2">
-                        <img src={images[1]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[1])} />
-                    </div>
-                    <div className="overflow-hidden col-start-2 row-start-1">
-                        <img src={images[2]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[2])} />
-                    </div>
-                    <div className="overflow-hidden col-start-2 row-start-2">
-                        <img src={images[3]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[3])} />
-                    </div>
+                    <div className="overflow-hidden col-start-1 row-start-1"><img src={images[0]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[0])} /></div>
+                    <div className="overflow-hidden col-start-1 row-start-2"><img src={images[1]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[1])} /></div>
+                    <div className="overflow-hidden col-start-2 row-start-1"><img src={images[2]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[2])} /></div>
+                    <div className="overflow-hidden col-start-2 row-start-2"><img src={images[3]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[3])} /></div>
                 </div>
             )
         }
@@ -155,15 +77,9 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         if (imageCount === 3) {
             return (
                 <div className="grid grid-cols-2 grid-rows-2 gap-1 rounded-3xl overflow-hidden border border-purple-200 w-full h-60 sm:h-70 md:h-80">
-                    <div className="overflow-hidden col-start-1 row-start-1">
-                        <img src={images[0]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[0])} />
-                    </div>
-                    <div className="overflow-hidden col-start-1 row-start-2">
-                        <img src={images[1]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[1])} />
-                    </div>
-                    <div className="overflow-hidden col-start-2 row-start-1 row-span-2">
-                        <img src={images[2]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[2])} />
-                    </div>
+                    <div className="overflow-hidden col-start-1 row-start-1"><img src={images[0]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[0])} /></div>
+                    <div className="overflow-hidden col-start-1 row-start-2"><img src={images[1]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[1])} /></div>
+                    <div className="overflow-hidden col-start-2 row-start-1 row-span-2"><img src={images[2]} alt="post" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(images[2])} /></div>
                 </div>
             )
         }
@@ -179,6 +95,14 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
         )
     }
 
+    // Shared comment trigger button
+    const commentTrigger = (
+        <div className="flex items-center gap-1 cursor-pointer" onClick={() => setCommentOpen(true)}>
+            <MessageCircle size={25} className="text-gray-400" />
+            <span className="text-gray-400 text-[14px] sm:text-[16px]">{commentCount || 0}</span>
+        </div>
+    )
+
     return (
         <div className="flex flex-col">
             <div className="flex px-2 gap-2 items-center sm:px-5">
@@ -191,7 +115,7 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                     <div className="flex justify-between items-center gap-3">
                         <div className="w-full flex justify-between items-center">
                             <div className="flex flex-col">
-                                <h4 className="font-medium text-[14px] sm:text-[16px]">{lastName} {firstName}</h4> 
+                                <h4 className="font-medium text-[14px] sm:text-[16px]">{lastName} {firstName}</h4>
                                 <small className="text-gray-500 text-[12px] sm:text-[14px]">@{username}</small>
                             </div>
                             <div className="flex flex-col gap-1 items-end">
@@ -204,7 +128,7 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                                 <DropdownMenuTrigger className="cursor-pointer outline-none">
                                     <MoreVertical size={25} />
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="">
+                                <DropdownMenuContent>
                                     {canView() && (
                                         <DropdownMenuItem className="px-3 py-2" onSelect={(e) => e.preventDefault()}>
                                             <Drawer>
@@ -217,7 +141,6 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                                             </Drawer>
                                         </DropdownMenuItem>
                                     )}
-                                   
                                     {canDelete() && (
                                         <div>
                                             <DropdownMenuItem
@@ -242,17 +165,44 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                 <div className="pr-5 max-w-230">
                     {renderImages()}
                 </div>
-                <div className="mt-3 mr-5 flex justify-around items-center gap-2">
+
+                {/* Like and comment row */}
+                <div className="mt-3 mr-5 flex justify-around gap-5">
                     <div className="flex items-center gap-1">
                         <Heart
                             size={25}
                             onClick={() => toggleLike(id)}
-                            className={`cursor-pointer transition-transform active:scale-125 ${
-                                likedByMe ? "fill-red-500 text-red-500" : "text-gray-400"
-                            }`}
+                            className={`cursor-pointer transition-transform active:scale-125 ${likedByMe ? "fill-red-500 text-red-500" : "text-gray-400"}`}
                         />
                         <span className="text-gray-400 text-[14px] sm:text-[16px]">{likes?.length}</span>
                     </div>
+
+                    {/* Comment trigger — Drawer on mobile, Dialog on desktop */}
+                    {isDesktop ? (
+                        <Dialog open={commentOpen} onOpenChange={setCommentOpen}>
+                            <DialogTrigger asChild>
+                                {commentTrigger}
+                            </DialogTrigger>
+                            <DialogContent className="max-w-lg h-[80vh] flex flex-col p-0 overflow-hidden">
+                                <DialogHeader className="px-4 pt-4">
+                                    <DialogTitle>Comments</DialogTitle>
+                                </DialogHeader>
+                                <CommentSection postId={id} />
+                            </DialogContent>
+                        </Dialog>
+                    ) : (
+                        <Drawer open={commentOpen} onOpenChange={setCommentOpen}>
+                            <DrawerTrigger asChild>
+                                {commentTrigger}
+                            </DrawerTrigger>
+                            <DrawerContent className="h-[80vh] flex flex-col">
+                                <DrawerHeader>
+                                    <DrawerTitle>Comments</DrawerTitle>
+                                </DrawerHeader>
+                                <CommentSection postId={id} />
+                            </DrawerContent>
+                        </Drawer>
+                    )}
                 </div>
             </div>
 
@@ -263,10 +213,7 @@ function PostCard ({ profilePic, images, firstName, lastName, username, content,
                     style={{ backgroundColor: "rgba(0,0,0,0.9)" }}
                     onClick={() => setSelectedImage(null)}
                 >
-                    <button
-                        className="absolute top-4 right-4 text-white cursor-pointer"
-                        onClick={() => setSelectedImage(null)}
-                    >
+                    <button className="absolute top-4 right-4 text-white cursor-pointer" onClick={() => setSelectedImage(null)}>
                         <X size={32} />
                     </button>
                     <img

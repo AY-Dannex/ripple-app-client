@@ -51,6 +51,7 @@ function Post ({ pageType = "feed" }) {
                             pageType={pageType}
                             likes={post.likes}
                             likedByMe={post.likedByMe}
+                            commentCount={post.commentCount}
                         />
                     ))}
 
