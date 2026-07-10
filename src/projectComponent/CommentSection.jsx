@@ -110,7 +110,7 @@ function CommentSection({ postId }) {
                                                     }
                                                 </button>
                                             )}
-                                            {(user?._id === comment.user?._id || user?.role === "moderator" || user?.role === "superadmin") && (
+                                            {(user?._id === comment.user?._id || user?.role === "moderator" || user?.role === "admin") && (
                                                 <button
                                                     onClick={() => deleteComment(comment._id, postId)}
                                                     className="text-red-400 cursor-pointer ml-auto"
