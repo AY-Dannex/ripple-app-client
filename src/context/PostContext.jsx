@@ -82,6 +82,7 @@ export const PostProvider = ({ children }) => {
             if (response.ok) {
                 if (page === 1) {
                     setComments(data.comments)
+                    console.log(data.comments)
                 } else {
                     setComments(prev => [...prev, ...data.comments])
                 }

@@ -110,13 +110,15 @@ function CommentSection({ postId }) {
                                                     }
                                                 </button>
                                             )}
-                                            {(user?._id === comment.user?._id || user?.role === "moderator" || user?.role === "admin") && (
+                                            {(user?.id === comment.user?._id || user.role === "admin" ) && (
                                                 <button
-                                                    onClick={() => deleteComment(comment._id, postId)}
+                                                    onClick={
+                                                        // () => deleteComment(comment._id, postId)
+                                                        () => console.log(user.id, comment.user?._id, user.role)
+                                                    }
                                                     className="text-red-400 cursor-pointer ml-auto"
                                                 >
-                                                    <Trash2 size={103} />
-                                                    <p>kjfghurgtuhu</p>
+                                                    <Trash2 size={15} color="red"/>
                                                 </button>
                                             )}
                                         </div>
@@ -166,6 +168,7 @@ function CommentSection({ postId }) {
                                                     </div>
                                                     <small className="text-gray-400 text-[11px] px-2 mt-1">
                                                         {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
+                                                        {/* <Trash2 size={13} /> */}
                                                     </small>
                                                 </div>
                                             </div>

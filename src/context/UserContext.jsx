@@ -25,6 +25,7 @@ export const UserProvider = ({ children }) => {
 
             if(response.ok){
                 setUser(data.profile)
+                // console.log(data.profile)
             }else{
                 setUser(null)
             }
