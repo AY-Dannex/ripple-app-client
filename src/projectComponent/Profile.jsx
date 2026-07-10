@@ -310,6 +310,7 @@ function Profile (){
                             pageType="profile"
                             likes={post.likes}
                             likedByMe={post.likedByMe}
+                            commentCount={post.commentCount}
                         />
                     ))}
 

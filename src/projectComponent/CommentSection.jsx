@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { usePosts } from "../context/PostContext.jsx"
 import { useUser } from "../context/UserContext.jsx"
-import { Loader2, Trash2, CornerDownRight } from "lucide-react"
+import { Loader2, Trash2, CornerDownRight,  SendHorizonal} from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import pic from "../assets/pic.jpg"
 
@@ -60,7 +60,7 @@ function CommentSection({ postId }) {
                     disabled={!text.trim()}
                     className="text-purple-500 font-medium text-[14px] disabled:opacity-40 cursor-pointer"
                 >
-                    Post
+                    <SendHorizonal className="w-5 h-5" />
                 </button>
             </div>
 
@@ -115,7 +115,8 @@ function CommentSection({ postId }) {
                                                     onClick={() => deleteComment(comment._id, postId)}
                                                     className="text-red-400 cursor-pointer ml-auto"
                                                 >
-                                                    <Trash2 size={13} />
+                                                    <Trash2 size={103} />
+                                                    <p>kjfghurgtuhu</p>
                                                 </button>
                                             )}
                                         </div>
